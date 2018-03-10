@@ -27,7 +27,11 @@ class server {
 				System.out.println("RECEIVE Command Received");
 				ftp.receivefile(s);
 			}
-			
+			else if(option.equals("LIST")) {
+
+				System.out.println("LIST Command Received");
+				ftp.listdirectory(s);
+			}
 		}
 	}
 	
@@ -75,5 +79,21 @@ class server {
 		
 		System.out.println("Received file...");
 		fout.close();
+	}
+
+	public void listdirectory(Socket s) throws Exception {
+
+		Socket ssock = s;
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		File folder = new File(".");
+		File[] listOfFiles = folder.listFiles();
+
+    	for (int i = 0; i < listOfFiles.length; i++) {
+    		//System.out.println(listOfFiles[i].toString());
+			cout.writeUTF(listOfFiles[i].toString());
+    	}
+    	cout.writeUTF("EOF");
 	}
 }

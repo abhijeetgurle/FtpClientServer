@@ -13,7 +13,7 @@ class client{
 		System.out.println("MENU");
 		System.out.println("1.SEND");
 		System.out.println("2.Receive");
-		System.out.println("3.ls");
+		System.out.println("3.LIST");
 		
 		client ftp=new client();
 		
@@ -32,7 +32,7 @@ class client{
 			}
 			else if(option.equals("3")) {
 				//For listing available files on server
-				System.out.println("ls command received");
+				System.out.println("LIST command received");
 				ftp.listdirectory(s);
 			}
 		}
@@ -99,6 +99,20 @@ class client{
 		
 		DataInputStream cin = new DataInputStream(ssock.getInputStream());
 		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		cout.writeUTF("LIST");
+		System.out.println("Response from the server:");
+
+		String data;
+
 		
+		while(true) {
+
+			data = cin.readUTF();
+			System.out.println(data);
+			if(data.equals("EOF"))
+				break;
+			System.out.println(data);
+		}
 	}
 }
