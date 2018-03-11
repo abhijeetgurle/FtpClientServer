@@ -14,6 +14,7 @@ class client{
 		System.out.println("1.SEND");
 		System.out.println("2.Receive");
 		System.out.println("3.LIST");
+		System.out.println("4.CD");
 		
 		client ftp=new client();
 		
@@ -34,6 +35,11 @@ class client{
 				//For listing available files on server
 				System.out.println("LIST command received");
 				ftp.listdirectory(s);
+			}
+			else if(option.equals("4")) {
+				//for changing directory
+				System.out.println("CD command received");
+				ftp.cd(s);
 			}
 		}
 	}
@@ -109,10 +115,26 @@ class client{
 		while(true) {
 
 			data = cin.readUTF();
-			System.out.println(data);
 			if(data.equals("EOF"))
 				break;
 			System.out.println(data);
 		}
+	}
+
+	public void cd(Socket s) throws Exception {
+
+		Socket ssock = s;
+
+		DataInputStream in = new DataInputStream(System.in);
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		cout.writeUTF("CD");
+		System.out.print("Enter path to directory: ");
+		String path = in.readLine();
+		cout.writeUTF(path);
+
+		if(cin.readUTF().equals("OK"))
+			System.out.println("Directory changed succefully");
 	}
 }

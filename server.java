@@ -32,6 +32,11 @@ class server {
 				System.out.println("LIST Command Received");
 				ftp.listdirectory(s);
 			}
+			else if(option.equals("CD")) {
+
+				System.out.println("CD Command Received");
+				ftp.cd(s);
+			}
 		}
 	}
 	
@@ -91,9 +96,25 @@ class server {
 		File[] listOfFiles = folder.listFiles();
 
     	for (int i = 0; i < listOfFiles.length; i++) {
-    		//System.out.println(listOfFiles[i].toString());
-			cout.writeUTF(listOfFiles[i].toString());
+
+			cout.writeUTF(listOfFiles[i].getName());
     	}
     	cout.writeUTF("EOF");
+	}
+
+	public void cd(Socket s) throws Exception {
+
+		Socket ssock = s;
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		String path = cin.readUTF();
+
+		File file=new File(".");
+      	String oldpath = file.getAbsolutePath();
+      	oldpath = oldpath.substring(0, oldpath.length() - 1);
+      	System.setProperty("user.dir", oldpath+path);
+
+      	cout.writeUTF("OK");
 	}
 }
