@@ -37,6 +37,11 @@ class server {
 				System.out.println("CD Command Received");
 				ftp.cd(s);
 			}
+			else if(option.equals("PWD")) {
+
+				System.out.println("PWD Command Received");
+				ftp.pwd(s);
+			}
 		}
 	}
 	
@@ -116,5 +121,18 @@ class server {
       	System.setProperty("user.dir", oldpath+path);
 
       	cout.writeUTF("OK");
+	}
+
+	public void pwd(Socket s) throws Exception {
+
+		Socket ssock = s;
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		File file=new File(".");
+      	String oldpath = file.getAbsolutePath();
+      	oldpath = oldpath.substring(0, oldpath.length() - 1);
+
+      	cout.writeUTF(oldpath);
 	}
 }

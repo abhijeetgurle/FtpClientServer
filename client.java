@@ -15,6 +15,7 @@ class client{
 		System.out.println("2.Receive");
 		System.out.println("3.LIST");
 		System.out.println("4.CD");
+		System.out.println("5.PWD");
 		
 		client ftp=new client();
 		
@@ -40,6 +41,11 @@ class client{
 				//for changing directory
 				System.out.println("CD command received");
 				ftp.cd(s);
+			}
+			else if(option.equals("5")) {
+				//for getting current working directory
+				System.out.println("PWD command received");
+				ftp.pwd(s);
 			}
 		}
 	}
@@ -136,5 +142,17 @@ class client{
 
 		if(cin.readUTF().equals("OK"))
 			System.out.println("Directory changed succefully");
+	}
+
+	public void pwd(Socket s) throws Exception {
+
+		Socket ssock = s;
+
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		cout.writeUTF("PWD");
+		System.out.println("Response from server:");
+		System.out.println(cin.readUTF());
 	}
 }
