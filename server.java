@@ -1,50 +1,27 @@
 import java.io.*;
 import java.net.*;
 
-class server {
+class server implements Runnable {
 	
+	Socket s;
+	server(Socket s) {
+
+		this.s = s;
+	}
+
 	public static void main(String[] args) throws Exception {
 		
 		ServerSocket Sock = new ServerSocket(Integer.parseInt(args[0]));
-		Socket s = Sock.accept();
-		
-		DataInputStream cin = new DataInputStream(s.getInputStream());
-		DataOutputStream cout = new DataOutputStream(s.getOutputStream());
-		
-		server ftp = new server();
-		
-		while(true)
-		{
-			String option = cin.readUTF();
-			
-			if(option.equals("SEND")) {
-				
-				System.out.println("SEND Command Received");
-				ftp.sendfile(s);
-			}
-			else if(option.equals("RECEIVE")) {
-				
-				System.out.println("RECEIVE Command Received");
-				ftp.receivefile(s);
-			}
-			else if(option.equals("LIST")) {
+		System.out.println("Listening for requests.");
 
-				System.out.println("LIST Command Received");
-				ftp.listdirectory(s);
-			}
-			else if(option.equals("CD")) {
+		while(true) {
 
-				System.out.println("CD Command Received");
-				ftp.cd(s);
-			}
-			else if(option.equals("PWD")) {
-
-				System.out.println("PWD Command Received");
-				ftp.pwd(s);
-			}
+			Socket s = Sock.accept();
+			System.out.println("Connected");
+			new Thread(new server(s)).start();
 		}
 	}
-	
+
 	public void sendfile(Socket s) throws Exception {
 		
 		Socket ssock = s;
@@ -135,4 +112,51 @@ class server {
 
       	cout.writeUTF(oldpath);
 	}
+
+	
+	public void run() {
+
+		try {
+
+			DataInputStream cin = new DataInputStream(s.getInputStream());
+			DataOutputStream cout = new DataOutputStream(s.getOutputStream());
+
+			server ftp = new server(s);
+		
+			while(true)
+			{
+				String option = cin.readUTF();
+			
+				if(option.equals("SEND")) {
+				
+					System.out.println("SEND Command Received");
+					ftp.sendfile(ftp.s);
+				}
+				else if(option.equals("RECEIVE")) {
+				
+					System.out.println("RECEIVE Command Received");
+					ftp.receivefile(ftp.s);
+				}
+				else if(option.equals("LIST")) {
+
+					System.out.println("LIST Command Received");
+					ftp.listdirectory(ftp.s);
+				}
+				else if(option.equals("CD")) {
+
+					System.out.println("CD Command Received");
+					ftp.cd(ftp.s);
+				}
+				else if(option.equals("PWD")) {
+
+					System.out.println("PWD Command Received");
+					ftp.pwd(ftp.s);
+				}
+			}
+		} catch (Exception e) {
+
+			System.out.println(e);
+		}
+	}	
+	
 }
