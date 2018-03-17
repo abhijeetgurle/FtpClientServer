@@ -74,7 +74,7 @@ class server implements Runnable {
 		DataInputStream cin = new DataInputStream(ssock.getInputStream());
 		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
 
-		File folder = new File(".");
+		File folder = new File(System.getProperty("user.dir") + ".");
 		File[] listOfFiles = folder.listFiles();
 
     	for (int i = 0; i < listOfFiles.length; i++) {

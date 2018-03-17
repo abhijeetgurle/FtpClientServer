@@ -9,40 +9,41 @@ class client{
 		
 		DataInputStream in = new DataInputStream(System.in);
 		Socket s = new Socket("localhost", Integer.parseInt(args[0]));
-		
-		System.out.println("MENU");
-		System.out.println("1.SEND");
-		System.out.println("2.Receive");
-		System.out.println("3.LIST");
-		System.out.println("4.CD");
-		System.out.println("5.PWD");
-		
 		client ftp=new client();
+
+		System.out.println();
+		System.out.println("Welcome! This is Ftp client programme. Start typing commands below.");
 		
 		while(true) {
-			
+		
+			System.out.println();
+			System.out.println();
+			System.out.print(">> ");
+		
 			option = in.readLine();
-			if(option.equals("1")) {
+			//tokenizing input string
+			String[] command_input = option.split("\\s+");
+ 
+			if(command_input[0].toUpperCase().equals("SEND")) {   //SEND command
 				//for uploading the file on server
-				System.out.println("SEND Command Received");
-				ftp.sendfile(s);
+				ftp.sendfile(s, command_input);
 			}
-			else if(option.equals("2")) {
+			else if(option.toUpperCase().equals("RECEIVE")) {
 				//for downloading the file on server
 				System.out.println("RECEIVE command received");
 				ftp.receivefile(s);
 			}
-			else if(option.equals("3")) {
+			else if(option.toUpperCase().equals("LIST")) {
 				//For listing available files on server
 				System.out.println("LIST command received");
 				ftp.listdirectory(s);
 			}
-			else if(option.equals("4")) {
+			else if(option.toUpperCase().equals("CD")) {
 				//for changing directory
 				System.out.println("CD command received");
 				ftp.cd(s);
 			}
-			else if(option.equals("5")) {
+			else if(option.toUpperCase().equals("PWD")) {
 				//for getting current working directory
 				System.out.println("PWD command received");
 				ftp.pwd(s);
@@ -50,21 +51,28 @@ class client{
 		}
 	}
 	
-	public void sendfile(Socket s) throws Exception
+	public void sendfile(Socket s, String[] command_input) throws Exception
 	{
 		Socket ssock = s;
 		
+		String filename = command_input[1];
+		System.out.println("Reading File "+filename);
+		File f=new File(filename);
+		boolean exists = f.exists();
+		if(exists == false) {				//if file does not exists return
+
+			System.out.println("File does not exists! Please Enter valid file name.");
+			return;
+		}
+
 		DataInputStream in = new DataInputStream(System.in);
 		
 		DataInputStream cin = new DataInputStream(ssock.getInputStream());
 		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
 		
-		cout.writeUTF("RECEIVE");
-		
-		String filename = in.readLine();
-		System.out.println("Reading File "+filename);
+		cout.writeUTF("RECEIVE");									//send command to server
 		cout.writeUTF(filename);
-		File f=new File(filename);
+
 		FileInputStream fin=new FileInputStream(f);
 		
 		int ch;
