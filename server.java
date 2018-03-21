@@ -1,5 +1,6 @@
 import java.io.*;
 import java.net.*;
+import java.util.regex.*;
 
 class server implements Runnable {
 	
@@ -25,17 +26,25 @@ class server implements Runnable {
 	public void sendfile(Socket s) throws Exception {
 		
 		Socket ssock = s;
-		
+
 		DataInputStream cin = new DataInputStream(ssock.getInputStream());
 		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
-		
+
 		String filename = cin.readUTF();
 		System.out.println("Reading file "+filename);
-		File f = new File(filename);
+		File f = new File(System.getProperty("user.dir") + File.separator +filename);
+		System.out.println(f);
+		boolean exists = f.exists();
+		if(exists == false) {				//if file does not exists return
+
+			cout.writeUTF("NOT EXIST");
+			return;
+		}
+		
+
 		FileInputStream fin = new FileInputStream(f);
-		
 		int ch;
-		
+
 		do {
 			
 			ch = fin.read();
@@ -91,12 +100,43 @@ class server implements Runnable {
 		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
 
 		String path = cin.readUTF();
+		if(path.equals("..")) {
 
-		File file=new File(".");
-      	String oldpath = file.getAbsolutePath();
-      	oldpath = oldpath.substring(0, oldpath.length() - 1);
-      	System.setProperty("user.dir", oldpath+path);
+			String currentdir = System.getProperty("user.dir");
+			String pattern = Pattern.quote(System.getProperty("file.separator"));
+			String[] split_path = currentdir.split(pattern);
+			String parentPath = "";
+			for(int i=0;i<split_path.length-1;i++)
+				parentPath+=split_path[i] + System.getProperty("file.separator");
 
+			System.setProperty("user.dir", parentPath);
+		}
+		else if(path.charAt(0) == 'C') {
+
+			File file=new File(path + ".");
+			boolean exists = file.exists();
+			if(exists == false) {				//if folder does not exists return
+
+				cout.writeUTF("NOT EXIST");
+				return;
+			}
+      		System.setProperty("user.dir", path);
+
+		}
+		else {
+
+			File file=new File(".");
+			String oldpath = file.getAbsolutePath();
+      		oldpath = oldpath.substring(0, oldpath.length() - 1);
+      		File folder = new File(oldpath+path);
+			boolean exists = folder.exists();
+			if(exists == false) {				//if folder does not exists return
+
+				cout.writeUTF("NOT EXIST");
+				return;
+			}
+      		System.setProperty("user.dir", oldpath+path);
+		}
       	cout.writeUTF("OK");
 	}
 
@@ -113,7 +153,21 @@ class server implements Runnable {
       	cout.writeUTF(oldpath);
 	}
 
-	
+	public void close(Socket s) throws Exception {
+
+		Socket ssock = s;
+		DataInputStream cin = new DataInputStream(ssock.getInputStream());
+		DataOutputStream cout = new DataOutputStream(ssock.getOutputStream());
+
+		try {
+        	cout.close();
+        	cin.close();
+        	ssock.close();
+    	} catch (IOException ex) {
+        	System.out.println("Error closing the socket and streams");
+		}
+}			
+
 	public void run() {
 
 		try {
@@ -151,6 +205,11 @@ class server implements Runnable {
 
 					System.out.println("PWD Command Received");
 					ftp.pwd(ftp.s);
+				}
+				else if(option.equals("CLOSE")) {
+
+					System.out.println("CLOSE Command Received");
+					ftp.close(ftp.s);
 				}
 			}
 		} catch (Exception e) {
